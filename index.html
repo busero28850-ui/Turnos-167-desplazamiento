@@ -25,9 +25,8 @@
             background-color: var(--bg-color);
             color: var(--text-main);
             margin: 0;
-            /* Margen libre de 28px en el lado derecho para deslizar libremente con el pulgar */
-            padding: 15px 28px 20px 15px; 
-            box-sizing: border-color;
+            padding: 15px;
+            box-sizing: border-box;
         }
 
         header {
@@ -129,8 +128,8 @@
             box-shadow: 0 3px 8px rgba(0,0,0,0.06);
             border: 1px solid var(--border-color);
             padding: 16px;
-            cursor: grab;
             position: relative;
+            touch-action: pan-y; /* Permite scroll vertical nativo por defecto en la tarjeta */
         }
 
         .card-header {
@@ -140,6 +139,37 @@
             border-bottom: 2px solid #f0f0f0;
             padding-bottom: 10px;
             margin-bottom: 12px;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .drag-handle {
+            cursor: grab;
+            padding: 6px 10px;
+            background-color: #eef2f7;
+            border: 1px solid #d0d7de;
+            border-radius: 6px;
+            color: #555;
+            font-size: 1.1rem;
+            font-weight: bold;
+            user-select: none;
+            touch-action: none; /* Desactiva scroll solo en el tirador para permitir arrastrar */
+        }
+
+        .drag-handle:active {
+            cursor: grabbing;
+            background-color: var(--primary-light);
+            color: white;
         }
 
         .turno-badge {
@@ -236,8 +266,13 @@
 
         <div class="shift-card" id="card-001" data-category="manana">
             <div class="card-header">
-                <span class="turno-badge">Turno 001</span>
-                <span class="coche-info">Coche 001</span>
+                <div class="header-left">
+                    <span class="turno-badge">Turno 001</span>
+                    <span class="coche-info">Coche 001</span>
+                </div>
+                <div class="header-right">
+                    <span class="drag-handle" title="Mantén pulsado para mover">☰ Mover</span>
+                </div>
             </div>
             <div class="day-section laborable">
                 <div class="day-title"><span>Laborables</span> <span class="total-hours">07:24</span></div>
@@ -257,8 +292,13 @@
 
         <div class="shift-card" id="card-002" data-category="manana">
             <div class="card-header">
-                <span class="turno-badge">Turno 002 / P 002 / S 002</span>
-                <span class="coche-info">Coche 002 / 001 / 003</span>
+                <div class="header-left">
+                    <span class="turno-badge">Turno 002 / P 002 / S 002</span>
+                    <span class="coche-info">Coche 002 / 001 / 003</span>
+                </div>
+                <div class="header-right">
+                    <span class="drag-handle" title="Mantén pulsado para mover">☰ Mover</span>
+                </div>
             </div>
             <div class="day-section laborable">
                 <div class="day-title"><span>Laborables</span> <span class="total-hours">04:49 + 02:41</span></div>
@@ -278,8 +318,13 @@
 
         <div class="shift-card" id="card-003" data-category="manana">
             <div class="card-header">
-                <span class="turno-badge">Turno 003</span>
-                <span class="coche-info">Coche 003</span>
+                <div class="header-left">
+                    <span class="turno-badge">Turno 003</span>
+                    <span class="coche-info">Coche 003</span>
+                </div>
+                <div class="header-right">
+                    <span class="drag-handle" title="Mantén pulsado para mover">☰ Mover</span>
+                </div>
             </div>
             <div class="day-section laborable">
                 <div class="day-title"><span>Laborables</span> <span class="total-hours">07:25</span></div>
@@ -299,8 +344,13 @@
 
         <div class="shift-card" id="card-004" data-category="manana">
             <div class="card-header">
-                <span class="turno-badge">Turno 004 / P 004 / S 004</span>
-                <span class="coche-info">Coche 004 / 001 / 002</span>
+                <div class="header-left">
+                    <span class="turno-badge">Turno 004 / P 004 / S 004</span>
+                    <span class="coche-info">Coche 004 / 001 / 002</span>
+                </div>
+                <div class="header-right">
+                    <span class="drag-handle" title="Mantén pulsado para mover">☰ Mover</span>
+                </div>
             </div>
             <div class="day-section laborable">
                 <div class="day-title"><span>Laborables</span> <span class="total-hours">07:25</span></div>
@@ -320,8 +370,13 @@
 
         <div class="shift-card" id="card-005" data-category="manana">
             <div class="card-header">
-                <span class="turno-badge">Turno 005</span>
-                <span class="coche-info">Coche 005 / 001</span>
+                <div class="header-left">
+                    <span class="turno-badge">Turno 005</span>
+                    <span class="coche-info">Coche 005 / 001</span>
+                </div>
+                <div class="header-right">
+                    <span class="drag-handle" title="Mantén pulsado para mover">☰ Mover</span>
+                </div>
             </div>
             <div class="day-section laborable">
                 <div class="day-title"><span>Laborables</span> <span class="total-hours">06:56</span></div>
@@ -341,8 +396,13 @@
 
         <div class="shift-card" id="card-006" data-category="manana">
             <div class="card-header">
-                <span class="turno-badge">Turno 006 X</span>
-                <span class="coche-info">Coche 006 / 005 / 002</span>
+                <div class="header-left">
+                    <span class="turno-badge">Turno 006 X</span>
+                    <span class="coche-info">Coche 006 / 005 / 002</span>
+                </div>
+                <div class="header-right">
+                    <span class="drag-handle" title="Mantén pulsado para mover">☰ Mover</span>
+                </div>
             </div>
             <div class="day-section laborable">
                 <div class="day-title"><span>Laborables</span> <span class="total-hours">07:00</span></div>
@@ -369,8 +429,13 @@
 
         <div class="shift-card" id="card-007" data-category="manana">
             <div class="card-header">
-                <span class="turno-badge">Turno 007</span>
-                <span class="coche-info">Coche 007 / 003</span>
+                <div class="header-left">
+                    <span class="turno-badge">Turno 007</span>
+                    <span class="coche-info">Coche 007 / 003</span>
+                </div>
+                <div class="header-right">
+                    <span class="drag-handle" title="Mantén pulsado para mover">☰ Mover</span>
+                </div>
             </div>
             <div class="day-section laborable">
                 <div class="day-title"><span>Laborables</span> <span class="total-hours">06:50</span></div>
@@ -390,8 +455,13 @@
 
         <div class="shift-card" id="card-008" data-category="manana">
             <div class="card-header">
-                <span class="turno-badge">Turno 008 X</span>
-                <span class="coche-info">Coche 008 / 001</span>
+                <div class="header-left">
+                    <span class="turno-badge">Turno 008 X</span>
+                    <span class="coche-info">Coche 008 / 001</span>
+                </div>
+                <div class="header-right">
+                    <span class="drag-handle" title="Mantén pulsado para mover">☰ Mover</span>
+                </div>
             </div>
             <div class="day-section laborable">
                 <div class="day-title"><span>Laborables</span> <span class="total-hours">06:54</span></div>
@@ -411,8 +481,13 @@
 
         <div class="shift-card" id="card-009" data-category="tarde">
             <div class="card-header">
-                <span class="turno-badge">Turno 009 / P 009 / S 009</span>
-                <span class="coche-info">Coche 005 / 004 / 001</span>
+                <div class="header-left">
+                    <span class="turno-badge">Turno 009 / P 009 / S 009</span>
+                    <span class="coche-info">Coche 005 / 004 / 001</span>
+                </div>
+                <div class="header-right">
+                    <span class="drag-handle" title="Mantén pulsado para mover">☰ Mover</span>
+                </div>
             </div>
             <div class="day-section laborable">
                 <div class="day-title"><span>Laborables</span> <span class="total-hours">04:03 + 03:36</span></div>
@@ -439,8 +514,13 @@
 
         <div class="shift-card" id="card-010" data-category="tarde">
             <div class="card-header">
-                <span class="turno-badge">Turno 010 / P 010 / S 010</span>
-                <span class="coche-info">Coche 003 / 007 / 002 / 005</span>
+                <div class="header-left">
+                    <span class="turno-badge">Turno 010 / P 010 / S 010</span>
+                    <span class="coche-info">Coche 003 / 007 / 002 / 005</span>
+                </div>
+                <div class="header-right">
+                    <span class="drag-handle" title="Mantén pulsado para mover">☰ Mover</span>
+                </div>
             </div>
             <div class="day-section laborable">
                 <div class="day-title"><span>Laborables</span> <span class="total-hours">04:57 + 02:32</span></div>
@@ -467,8 +547,13 @@
 
         <div class="shift-card" id="card-011" data-category="tarde">
             <div class="card-header">
-                <span class="turno-badge">Turno 011 X</span>
-                <span class="coche-info">Coche 006 / 003</span>
+                <div class="header-left">
+                    <span class="turno-badge">Turno 011 X</span>
+                    <span class="coche-info">Coche 006 / 003</span>
+                </div>
+                <div class="header-right">
+                    <span class="drag-handle" title="Mantén pulsado para mover">☰ Mover</span>
+                </div>
             </div>
             <div class="day-section laborable">
                 <div class="day-title"><span>Laborables</span> <span class="total-hours">06:52</span></div>
@@ -495,8 +580,13 @@
 
         <div class="shift-card" id="card-012" data-category="tarde">
             <div class="card-header">
-                <span class="turno-badge">Turno 012 / P 012 / S 012</span>
-                <span class="coche-info">Coche 007 / 001 / 002</span>
+                <div class="header-left">
+                    <span class="turno-badge">Turno 012 / P 012 / S 012</span>
+                    <span class="coche-info">Coche 007 / 001 / 002</span>
+                </div>
+                <div class="header-right">
+                    <span class="drag-handle" title="Mantén pulsado para mover">☰ Mover</span>
+                </div>
             </div>
             <div class="day-section laborable">
                 <div class="day-title"><span>Laborables</span> <span class="total-hours">07:12</span></div>
@@ -516,8 +606,13 @@
 
         <div class="shift-card" id="card-013" data-category="tarde">
             <div class="card-header">
-                <span class="turno-badge">Turno 013 X</span>
-                <span class="coche-info">Coche 008 / 005 / 002</span>
+                <div class="header-left">
+                    <span class="turno-badge">Turno 013 X</span>
+                    <span class="coche-info">Coche 008 / 005 / 002</span>
+                </div>
+                <div class="header-right">
+                    <span class="drag-handle" title="Mantén pulsado para mover">☰ Mover</span>
+                </div>
             </div>
             <div class="day-section laborable">
                 <div class="day-title"><span>Laborables</span> <span class="total-hours">07:01</span></div>
@@ -544,8 +639,13 @@
 
         <div class="shift-card" id="card-014" data-category="tarde">
             <div class="card-header">
-                <span class="turno-badge">Turno 014</span>
-                <span class="coche-info">Coche 001 / 004</span>
+                <div class="header-left">
+                    <span class="turno-badge">Turno 014</span>
+                    <span class="coche-info">Coche 001 / 004</span>
+                </div>
+                <div class="header-right">
+                    <span class="drag-handle" title="Mantén pulsado para mover">☰ Mover</span>
+                </div>
             </div>
             <div class="day-section laborable">
                 <div class="day-title"><span>Laborables</span> <span class="total-hours">07:01</span></div>
@@ -565,8 +665,13 @@
 
         <div class="shift-card" id="card-015" data-category="tarde">
             <div class="card-header">
-                <span class="turno-badge">Turno 015 / P 015 / S 015</span>
-                <span class="coche-info">Coche 002 / 003</span>
+                <div class="header-left">
+                    <span class="turno-badge">Turno 015 / P 015 / S 015</span>
+                    <span class="coche-info">Coche 002 / 003</span>
+                </div>
+                <div class="header-right">
+                    <span class="drag-handle" title="Mantén pulsado para mover">☰ Mover</span>
+                </div>
             </div>
             <div class="day-section laborable">
                 <div class="day-title"><span>Laborables</span> <span class="total-hours">07:15</span></div>
@@ -586,8 +691,13 @@
 
         <div class="shift-card" id="card-016" data-category="tarde">
             <div class="card-header">
-                <span class="turno-badge">Turno 016 X</span>
-                <span class="coche-info">Coche 005 / 004</span>
+                <div class="header-left">
+                    <span class="turno-badge">Turno 016 X</span>
+                    <span class="coche-info">Coche 005 / 004</span>
+                </div>
+                <div class="header-right">
+                    <span class="drag-handle" title="Mantén pulsado para mover">☰ Mover</span>
+                </div>
             </div>
             <div class="day-section laborable">
                 <div class="day-title"><span>Laborables</span> <span class="total-hours">06:50</span></div>
@@ -607,8 +717,13 @@
 
         <div class="shift-card" id="card-017" data-category="tarde">
             <div class="card-header">
-                <span class="turno-badge">Turno 017</span>
-                <span class="coche-info">Coche 003 / 006</span>
+                <div class="header-left">
+                    <span class="turno-badge">Turno 017</span>
+                    <span class="coche-info">Coche 003 / 006</span>
+                </div>
+                <div class="header-right">
+                    <span class="drag-handle" title="Mantén pulsado para mover">☰ Mover</span>
+                </div>
             </div>
             <div class="day-section laborable">
                 <div class="day-title"><span>Laborables</span> <span class="total-hours">06:37</span></div>
@@ -628,8 +743,13 @@
 
         <div class="shift-card" id="card-018" data-category="manana correturnos">
             <div class="card-header">
-                <span class="turno-badge">Turno 018</span>
-                <span class="coche-info">Correturnos M</span>
+                <div class="header-left">
+                    <span class="turno-badge">Turno 018</span>
+                    <span class="coche-info">Correturnos M</span>
+                </div>
+                <div class="header-right">
+                    <span class="drag-handle" title="Mantén pulsado para mover">☰ Mover</span>
+                </div>
             </div>
             <div class="day-section laborable">
                 <div class="day-title"><span>Laborables</span> <span class="total-hours">-</span></div>
@@ -642,8 +762,13 @@
 
         <div class="shift-card" id="card-019" data-category="manana correturnos">
             <div class="card-header">
-                <span class="turno-badge">Turno 019</span>
-                <span class="coche-info">Correturnos M</span>
+                <div class="header-left">
+                    <span class="turno-badge">Turno 019</span>
+                    <span class="coche-info">Correturnos M</span>
+                </div>
+                <div class="header-right">
+                    <span class="drag-handle" title="Mantén pulsado para mover">☰ Mover</span>
+                </div>
             </div>
             <div class="day-section laborable">
                 <div class="day-title"><span>Laborables</span> <span class="total-hours">-</span></div>
@@ -656,8 +781,13 @@
 
         <div class="shift-card" id="card-020" data-category="tarde correturnos">
             <div class="card-header">
-                <span class="turno-badge">Turno 020</span>
-                <span class="coche-info">Correturnos T</span>
+                <div class="header-left">
+                    <span class="turno-badge">Turno 020</span>
+                    <span class="coche-info">Correturnos T</span>
+                </div>
+                <div class="header-right">
+                    <span class="drag-handle" title="Mantén pulsado para mover">☰ Mover</span>
+                </div>
             </div>
             <div class="day-section laborable">
                 <div class="day-title"><span>Laborables</span> <span class="total-hours">-</span></div>
@@ -670,8 +800,13 @@
 
         <div class="shift-card" id="card-021" data-category="tarde correturnos">
             <div class="card-header">
-                <span class="turno-badge">Turno 021</span>
-                <span class="coche-info">Correturnos T</span>
+                <div class="header-left">
+                    <span class="turno-badge">Turno 021</span>
+                    <span class="coche-info">Correturnos T</span>
+                </div>
+                <div class="header-right">
+                    <span class="drag-handle" title="Mantén pulsado para mover">☰ Mover</span>
+                </div>
             </div>
             <div class="day-section laborable">
                 <div class="day-title"><span>Laborables</span> <span class="total-hours">-</span></div>
@@ -721,8 +856,10 @@
 
         loadSavedOrder();
 
+        // Configuración de Sortable restringiendo el arrastre ÚNICAMENTE al botón '.drag-handle'
         var sortable = Sortable.create(container, {
             animation: 150,
+            handle: '.drag-handle', // Solo se mueve si tocas el botón "☰ Mover"
             ghostClass: 'blue-background-class',
             onEnd: function () {
                 saveOrder();
