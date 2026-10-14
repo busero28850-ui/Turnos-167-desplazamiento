@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reparto de Trabajo - Línea 167 (EMT Madrid)</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+    <style>
+        :root {
+            --primary: #1f4e79;
+            --primary-light: #2e75b6;
+            --bg-color: #f4f6f9;
+            --card-bg: #ffffff;
+            --text-main: #333333;
+            --text-muted: #666666;
+            --border-color: #d9d9d9;
+            --sabado-bg: #e8f4fd;
+            --sabado-border: #bbe1fa;
+            --festivo-bg: #fef6e7;
+            --festivo-border: #fdebd0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+            overflow-y: scroll; /* Fuerza la barra de desplazamiento vertical siempre a la derecha */
+        }
+
+        /* Personalización de la barra de desplazamiento para que sea limpia y visible */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-light);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary);
+        }
+
+        header {
+            text-align: center;
+            background: linear-gradient(135deg, #1f4e79, #113355);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            margin-bottom: 25px;
+        }
+
+        header h1 {
+            margin: 0 0 5px 0;
+            font-size: 1.5rem;
+        }
+
+        header p {
+            margin: 0;
+            font-size: 0.95rem;
+            opacity: 0.9;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+            background: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+        }
+
+        .filters {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            background-color: #e9ecef;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: var(--text-main);
+            transition: all 0.2s;
+        }
+
+        .filter-btn:hover, .filter-btn.active {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: background 0.2s;
+        }
+
+        .btn:hover {
+            background-color: #218838;
+        }
+
+        .btn-reset {
+            background-color: #6c757d;
+        }
+        .btn-reset:hover {
+            background-color: #5a6268;
+        }
+
+        .status-toast {
+            font-size: 0.85rem;
+            color: #155724;
+            background-color: #d4edda;
+            padding: 6px 12px;
+            border-radius: 6px;
+            display: none;
+        }
+
+        .kanban-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+            gap: 16px;
+            min-height: 400px;
+        }
+
+        .shift-card {
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.06);
+            border: 1px solid var(--border-color);
+            padding: 16px;
+            cursor: grab;
+            transition: transform 0.2s, box-shadow 0.2s;
+            position: relative;
+        }
+
+        .shift-card:active {
+            cursor: grabbing;
+        }
+
+        .shift-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 16px rgba(31,78,121,0.15);
+            border-color: var(--primary-light);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 10px;
+            margin-bottom: 12px;
+        }
+
+        .turno-badge {
+            background-color: var(--primary);
+            color: white;
+            font-weight: bold;
+            font-size: 1rem;
+            padding: 4px 10px;
+            border-radius: 6px;
+        }
+
+        .coche-info {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            background: #eef2f7;
+            padding: 3px 8px;
+            border-radius: 4px;
+        }
+
+        .day-section {
+            margin-bottom: 10px;
+            padding: 8px 10px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+        }
+
+        .day-section.laborable {
+            background-color: #f8f9fa;
+            border-left: 4px solid var(--primary);
+        }
+
+        .day-section.sabado {
+            background-color: var(--sabado-bg);
+            border-left: 4px solid #0077cc;
+        }
+
+        .day-section.festivo {
+            background-color: var(--festivo-bg);
+            border-left: 4px solid #e67e22;
+        }
+
+        .day-title {
+            font-weight: bold;
+            margin-bottom: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .time-row {
+            display: flex;
+            justify-content: space-between;
+            color: var(--text-main);
+            margin-bottom: 2px;
+        }
+
+        .time-val {
+            font-family: monospace;
+            font-weight: 600;
+        }
+
+        .location {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            margin-bottom: 4px;
+            line-height: 1.2;
+        }
+
+        .total-hours {
+            font-weight: bold;
+            color: var(--primary);
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>EMT MADRID - LÍNEA 167</h1>
+        <p>Cuadro 0F591A | Alsacia - Colonia Fin de Semana | Laborables, Sábados y Festivos</p>
+    </header>
+
+    <div class="controls">
+        <div class="filters">
+            <button class="filter-btn active" onclick="filterCards('all')">Todos</button>
+            <button class="filter-btn" onclick="filterCards('manana')">Mañanas</button>
+            <button class="filter-btn" onclick="filterCards('tarde')">Tardes</button>
+            <button class="filter-btn" onclick="filterCards('correturnos')">Correturnos</button>
+        </div>
+        <div class="actions">
+            <span id="toast" class="status-toast">✓ Orden guardado</span>
+            <button class="btn btn-reset" onclick="resetOrder()">Restablecer Orden</button>
+        </div>
+    </div>
+
+    <div class="kanban-container" id="kanbanBoard">
+
+        <div class="shift-card" id="card-001" data-category="manana">
+            <div class="card-header">
+                <span class="turno-badge">Turno 001</span>
+                <span class="coche-info">Coche 001</span>
+            </div>
+            <div class="day-section laborable">
+                <div class="day-title"><span>Laborables</span> <span class="total-hours">07:24</span></div>
+                <div class="time-row"><span>Comienza:</span> <span class="time-val">05:05</span></div>
+                <div class="location">C.O. Sanchinarro</div>
+                <div class="time-row"><span>Termina:</span> <span class="time-val">12:29</span></div>
+                <div class="location">COLONIA FIN DE SEMANA</div>
+            </div>
+            <div class="day-section festivo">
+                <div class="day-title"><span>Festivos</span> <span class="total-hours">07:12</span></div>
+                <div class="time-row"><span>Comienza:</span> <span class="time-val">09:09</span></div>
+                <div class="location">C.O. Sanchinarro</div>
+                <div class="time-row"><span>Termina:</span> <span class="time-val">16:21</span></div>
+                <div class="location">Estadio Metropolitano (50009)</div>
+            </div>
+        </div>
+
+        <div class="shift-card" id="card-002" data-category="manana">
+            <div class="card-header">
+                <span class="turno-badge">Turno 002 / P 002 / S 002</span>
+                <span class="coche-info">Coche 002 / 001 / 003</span>
+            </div>
+            <div class="day-section laborable">
+                <div class="day-title"><span>Laborables</span> <span class="total-hours">04:49 + 02:41</span></div>
+                <div class="time-row"><span>Comienza:</span> <span class="time-val">05:20 / 12:29</span></div>
+                <div class="location">C.O. Sanchinarro / Colonia</div>
+                <div class="time-row"><span>Termina:</span> <span class="time-val">10:09 / 15:10</span></div>
+                <div class="location">C.O. Sanchinarro / Colonia</div>
+            </div>
+            <div class="day-section sabado">
+                <div class="day-title"><span>Sábados</span> <span class="total-hours">07:13</span></div>
+                <div class="time-row"><span>Comienza:</span> <span class="time-val">05:51</span></div>
+                <div class="location">C.O. Sanchinarro</div>
+                <div class="time-row"><span>Termina:</span> <span class="time-val">13:04</span></div>
+                <div class="location">Estadio Metropolitano (50009)</div>
+            </div>
+        </div>
+
+        <div class="shift-card" id="card-003" data-category="manana">
+            <div class="card-header">
+                <span class="turno-badge">Turno 003</span>
+                <span class="coche-info">Coche 003</span>
+            </div>
+            <div class="day-section laborable">
+                <div class="day-title"><span>Laborables</span> <span class="total-hours">07:25</span></div>
+                <div class="time-row"><span>Comienza:</span> <span class="time-val">05:38</span></div>
+                <div class="location">C.O. Sanchinarro</div>
+                <div class="time-row"><span>Termina:</span> <span class="time-val">13:03</span></div>
+                <div class="location">COLONIA FIN DE SEMANA</div>
+            </div>
+            <div class="day-section sabado">
+                <div class="day-title"><span>Sábados</span> <span class="total-hours">07:00</span></div>
+                <div class="time-row"><span>Comienza:</span> <span class="time-val">07:40</span></div>
+                <div class="location">C.O. Sanchinarro</div>
+                <div class="time-row"><span>Termina:</span> <span class="time-val">14:40</span></div>
+                <div class="location">COLONIA FIN DE SEMANA</div>
+            </div>
+        </div>
+
+        <div class="shift-card" id="card-004" data-category="manana">
+            <div class="card-header">
+                <span class="turno-badge">Turno 004 / P 004 / S 004</span>
+                <span class="coche-info">Coche 004 / 001 / 002</span>
+            </div>
+            <div class="day-section laborable">
+                <div class="day-title"><span>Laborables</span> <span class="total-hours">07:25</span></div>
+                <div class="time-row"><span>Comienza:</span> <span class="time-val">05:50</span></div>
+                <div class="location">C.O. Sanchinarro</div>
+                <div class="time-row"><span>Termina:</span> <span class="time-val">13:15</span></div>
+                <div class="location">COLONIA FIN DE SEMANA</div>
+            </div>
+            <div class="day-section sabado">
+                <div class="day-title"><span>Sábados</span> <span class="total-hours">04:07 + 03:12</span></div>
+                <div class="time-row"><span>Comienza:</span> <span class="time-val">05:04 / 11:07</span></div>
+                <div class="location">Sanchinarro / Colonia</div>
+                <div class="time-row"><span>Termina:</span> <span class="time-val">09:11 / 14:19</span></div>
+                <div class="location">Colonia / Alsacia</div>
+            </div>
+        </div>
+
+        <div class="shift-card" id="card-005" data-category="manana">
+            <div class="card-header">
+                <span class="turno-badge">Turno 005</span>
+                <span class="coche-info">Coche 005 / 001</span>
+            </div>
+            <div class="day-section laborable">
+                <div class="day-title"><span>Laborables</span> <span class="total-hours">06:56</span></div>
+                <div class="time-row"><span>Comienza:</span> <span class="time-val">06:04</span></div>
+                <div class="location">C.O. Sanchinarro</div>
+                <div class="time-row"><span>Termina:</span> <span class="time-val">13:00</span></div>
+                <div class="location">ALSACIA</div>
+            </div>
+            <div class="day-section sabado">
+                <div class="day-title"><span>Sábados</span> <span class="total-hours">07:19</span></div>
+                <div class="time-row"><span>Comienza:</span> <span class="time-val">09:11</span></div>
+                <div class="location">COLONIA FIN DE SEMANA</div>
+                <div class="time-row"><span>Termina:</span> <span class="time-val">16:30</span></div>
+                <div class="location">Carretera San Blas a Coslada frente Metrop</div>
+            </div>
+        </div>
+
+        <div class="shift-card" id="card-006" data-category="manana">
+            <div class="card-header">
+                <span class="turno-badge">Turno 006 X</span>
+                <span class="coche-info">Coche 006 / 005 / 002</span>
+            </div>
+            <div class="day-section laborable">
+                <div class="day-title"><span>Laborables</span> <span class="total-hours">07:00</span></div>
+                <div class="time-row"><span>Comienza:</span> <span class="time-val">06:22</span></div>
+                <div class="location">C.O. Sanchinarro</div>
+                <div class="time-row"><span>Termina:</span> <span class="time-val">13:22</span></div>
+                <div class="location">ALSACIA</div>
+            </div>
+            <div class="day-section sabado">
+                <div class="day-title"><span>Sábados</span> <span class="total-hours">06:56</span></div>
+                <div class="time-row"><span>Comienza:</span> <span class="time-val">09:07</span></div>
+                <div class="location">C.O. Sanchinarro</div>
+                <div class="time-row"><span>Termina:</span> <span class="time-val">16:03</span></div>
+                <div class="location">ALSACIA</div>
+            </div>
+            <div class="day-section festivo">
+                <div class="day-title"><span>Festivos</span> <span class="total-hours">06:48</span></div>
+                <div class="time-row"><span>Comienza:</span> <span class="time-val">06:23</span></div>
+                <div class="location">C.O. Sanchinarro</div>
+                <div class="time-row"><span>Termina:</span> <span class="time-val">13:11</span></div>
+                <div class="location">ALSACIA</div>
+            </div>
+        </div>
+
+        <div class="shift-card" id="card-007" data-category="manana">
+            <div class="card-header">
+                <span class="turno-badge">Turno 007</span>
+                <span class="coche-info">Coche 007 / 003</span>
+            </div>
+            <div class="day-section laborable">
+                <div class="day-title"><span>Laborables</span> <span class="total-hours">06:50</span></div>
+                <div class="time-row"><span>Comienza:</span> <span class="time-val">06:43</span></div>
+                <div class="location">C.O. Sanchinarro</div>
+                <div class="time-row"><span>Termina:</span> <span class="time-val">13:33</span></div>
+                <div class="location">ALSACIA</div>
+            </div>
+            <div class="day-section festivo">
+                <div class="day-title"><span>Festivos</span> <span class="total-hours">07:24</span></div>
+                <div class="time-row"><span>Comienza:</span> <span class="time-val">07:45</span></div>
+                <div class="location">C.O. Sanchinarro</div>
+                <div class="time-row"><span>Termina:</span> <span class="time-val">15:09</span></div>
+                <div class="location">ALSACIA</div>
+            </div>
+        </div>
+
+        <div class="shift-card" id="card-008" data-category="manana">
+            <div class="card-header">
+                <span class="turno-badge">Turno 008 X</span>
+                <span class="coche-info">Coche 008 / 001</span>
+            </div>
+            <div class="day-section laborable">
+                <div class="day-title"><span>Laborables</span> <span class="total-hours">06:54</span></div>
+                <div class="time-row"><span>Comienza:</span> <span class="time-val">07:13</span></div>
+                <div class="location">C.O. Sanchinarro</div>
+                <div class="time-row"><span>Termina:</span> <span class="time-val">14:07</span></div>
+                <div class="location">ALSACIA</div>
+            </div>
+            <div class="day-section festivo">
+                <div class="day-title"><span>Festivos</span> <span class="total-hours">07:19</span></div>
+                <div class="time-row"><span>Comienza:</span> <span class="time-val">06:22</span></div>
+                <div class="location">C.O. Sanchinarro</div>
+                <div class="time-row"><span>Termina:</span> <span class="time-val">13:41</span></div>
+                <div class="location">ALSACIA</div>
+            </div>
+        </div>
+
+        <div class="shift-card" id="card-009" data-category="tarde">
+            <div class="card-header">
+                <span class="turno-badge">Turno 009 / P 009 / S 009</span>
+                <span class="coche-info">Coche 005 / 004 / 001</span>
+            </div>
+            <div class="day-section laborable">
+                <div class="day-title"><span>Laborables</span> <span class="total-hours">04:03 + 03:36</span></div>
+                <div class="time-row"><span>Comienza:</span> <span class="time-val">13:00 / 18:53</span></div>
+                <div class="location">Alsacia / Colonia</div>
+                <div class="time-row"><span>Termina:</span> <span class="time-val">17:03 / 22:29</span></div>
+                <div class="location">Alsacia / Sanchinarro</div>
+            </div>
+            <div class="day-section sabado">
+                <div class="day-title"><span>Sábados</span> <span class="total-hours">07:18</span></div>
+                <div class="time-row"><span>Comienza:</span> <span class="time-val">16:30</span></div>
+                <div class="location">Carretera San Blas a Coslada</div>
+                <div class="time-row"><span>Termina:</span> <span class="time-val">23:48</span></div>
+                <div class="location">C.O. Sanchinarro</div>
+            </div>
+            <div class="day-section festivo">
+                <div class="day-title"><span>Festivos</span> <span class="total-hours">07:24</span></div>
+                <div class="time-row"><span>Comienza:</span> <span class="time-val">16:43</span></div>
+                <div class="location">COLONIA FIN DE SEMANA</div>
+                <div class="time-row"><span>Termina:</span> <span class="time-val">00:07</span></div>
+                <div class="location">C.O. Sanchinarro</div>
+            </div>
+        </div>
+
+        <div class="shift-card" id="card-010" data-category="tarde">
+            <div class="card-header">
+                <span class="turno-badge">Turno 010 / P 010 / S 010</span>
+                <span class="coche-info">Coche 003 / 007 / 002 / 005</span>
+            </div>
+            <div class="day-section laborable">
+                <div class="day-title"><span>Laborables</span> <span class="total-hours">04:57 + 02:32</span></div>
+                <div class="time-row"><span>Comienza:</span> <span class="time-val">13:03 / 20:45</span></div>
+                <div class="location">Colonia / Alsacia</div>
+                <div class="time-row"><span>Termina:</span> <span class="time-val">18:00 / 23:17</span></div>
+                <div class="location">Alsacia / Sanchinarro</div>
+            </div>
+            <div class="day-section sabado">
+                <div class="day-title"><span>Sábados</span> <span class="total-hours">07:11</span></div>
+                <div class="time-row"><span>Comienza:</span> <span class="time-val">17:27</span></div>
+                <div class="location">COLONIA FIN DE SEMANA</div>
+                <div class="time-row"><span>Termina:</span> <span class="time-val">00:38</span></div>
+                <div class="location">C.O. Sanchinarro</div>
+            </div>
+            <div class="day-section festivo">
+                <div class="day-title"><span>Festivos</span> <span class="total-hours">07:18</span></div>
+                <div class="time-row"><span>Comienza:</span> <span class="time-val">16:28</span></div>
+                <div class="location">COLONIA FIN DE SEMANA</div>
+                <div class="time-row"><span>Termina:</span> <span class="time-val">23:46</span></div>
+                <div class="location">C.O. Sanchinarro</div>
+            </div>
+        </div>
+
+        <div class="shift-card" id="card-011" data-category="tarde">
+            <div class="card-header">
+                <span class="turno-badge">Turno 011 X</span>
+                <span class="coche-info">Coche 006 / 003</span>
+            </div>
+            <div class="day-section laborable">
+                <div class="day-title"><span>Laborables</span> <span class="total-hours">06:52</span></div>
+                <div class="time-row"><span>Comienza:</span> <span class="time-val">13:22</span></div>
+                <div class="location">ALSACIA</div>
+                <div class="time-row"><span>Termina:</span> <span class="time-val">20:14</span></div>
+                <div class="location">C.O. Sanchinarro</div>
+            </div>
+            <div class="day-section sabado">
+                <div class="day-title"><span>Sábados</span> <span class="total-hours">07:02</span></div>
+                <div class="time-row"><span>Comienza:</span> <span class="time-val">13:04</span></div>
+                <div class="location">Estadio Metropolitano (50009)</div>
+                <div class="time-row"><span>Termina:</span> <span class="time-val">20:06</span></div>
+                <div class="location">ALSACIA</div>
+            </div>
+            <div class="day-section festivo">
+                <div class="day-title"><span>Festivos</span> <span class="total-hours">07:01</span></div>
+                <div class="time-row"><span>Comienza:</span> <span class="time-val">15:09</span></div>
+                <div class="location">ALSACIA</div>
+                <div class="time-row"><span>Termina:</span> <span class="time-val">22:10</span></div>
+                <div class="location">C.O. Sanchinarro</div>
+            </div>
+        </div>
+
+        <div class="shift-card" id="card-012" data-category="tarde">
+            <div class="card-header">
+                <span class="turno-badge">Turno 012 / P 012 / S 012</span>
+                <span class="coche-info">Coche 007 / 001 / 002</span>
+            </div>
+            <div class="day-section laborable">
+                <div class="day-title"><span>Laborables</span> <span class="total-hours">07:12</span></div>
+                <div class="time-row"><span>Comienza:</span> <span class="time-val">13:33</span></div>
+                <div class="location">ALSACIA</div>
+                <div class="time-row"><span>Termina:</span> <span class="time-val">20:45</span></div>
+                <div class="location">ALSACIA</div>
+            </div>
+            <div class="day-section festivo">
+                <div class="day-title"><span>Festivos</span> <span class="total-hours">03:02 + 04:28</span></div>
+                <div class="time-row"><span>Comienza:</span> <span class="time-val">13:41 / 20:07</span></div>
+                <div class="location">Alsacia / Colonia</div>
+                <div class="time-row"><span>Termina:</span> <span class="time-val">16:43 / 00:35</span></div>
+                <div class="location">Colonia / Sanchinarro</div>
+            </div>
+        </div>
+
+        <div class="shift-card" id="card-013" data-category="tarde">
+            <div class="card-header">
+                <span class="turno-badge">Turno 013 X</span>
+                <span class="coche-info">Coche 008 / 005 / 002</span>
+            </div>
+            <div class="day-section laborable">
+                <div class="day-title"><span>Laborables</span> <span class="total-hours">07:01</span></div>
+                <div class="time-row"><span>Comienza:</span> <span class="time-val">14:07</span></div>
+                <div class="location">ALSACIA</div>
+                <div class="time-row"><span>Termina:</span> <span class="time-val">21:08</span></div>
+                <div class="location">C.O. Sanchinarro</div>
+            </div>
+            <div class="day-section sabado">
+                <div class="day-title"><span>Sábados</span> <span class="total-hours">06:53</span></div>
+                <div class="time-row"><span>Comienza:</span> <span class="time-val">16:03</span></div>
+                <div class="location">ALSACIA</div>
+                <div class="time-row"><span>Termina:</span> <span class="time-val">22:56</span></div>
+                <div class="location">C.O. Sanchinarro</div>
+            </div>
+            <div class="day-section festivo">
+                <div class="day-title"><span>Festivos</span> <span class="total-hours">06:56</span></div>
+                <div class="time-row"><span>Comienza:</span> <span class="time-val">13:11</span></div>
+                <div class="location">ALSACIA</div>
+                <div class="time-row"><span>Termina:</span> <span class="time-val">20:07</span></div>
+                <div class="location">COLONIA FIN DE SEMANA</div>
+            </div>
+        </div>
+
+        <div class="shift-card" id="card-014" data-category="tarde">
+            <div class="card-header">
+                <span class="turno-badge">Turno 014</span>
+                <span class="coche-info">Coche 001 / 004</span>
+            </div>
+            <div class="day-section laborable">
+                <div class="day-title"><span>Laborables</span> <span class="total-hours">07:01</span></div>
+                <div class="time-row"><span>Comienza:</span> <span class="time-val">15:10</span></div>
+                <div class="location">COLONIA FIN DE SEMANA</div>
+                <div class="time-row"><span>Termina:</span> <span class="time-val">22:11</span></div>
+                <div class="location">C.O. Sanchinarro</div>
+            </div>
+            <div class="day-section festivo">
+                <div class="day-title"><span>Festivos</span> <span class="total-hours">07:22</span></div>
+                <div class="time-row"><span>Comienza:</span> <span class="time-val">16:21</span></div>
+                <div class="location">Estadio Metropolitano</div>
+                <div class="time-row"><span>Termina:</span> <span class="time-val">23:43</span></div>
+                <div class="location">C.O. Sanchinarro</div>
+            </div>
+        </div>
+
+        <div class="shift-card" id="card-015" data-category="tarde">
+            <div class="card-header">
+                <span class="turno-badge">Turno 015 / P 015 / S 015</span>
+                <span class="coche-info">Coche 002 / 003</span>
+            </div>
+            <div class="day-section laborable">
+                <div class="day-title"><span>Laborables</span> <span class="total-hours">07:15</span></div>
+                <div class="time-row"><span>Comienza:</span> <span class="time-val">16:59</span></div>
+                <div class="location">C.O. Sanchinarro</div>
+                <div class="time-row"><span>Termina:</span> <span class="time-val">00:14</span></div>
+                <div class="location">C.O. Sanchinarro</div>
+            </div>
+            <div class="day-section sabado">
+                <div class="day-title"><span>Sábados</span> <span class="total-hours">03:08 + 04:07</span></div>
+                <div class="time-row"><span>Comienza:</span> <span class="time-val">14:19 / 20:06</span></div>
+                <div class="location">Alsacia / Alsacia</div>
+                <div class="time-row"><span>Termina:</span> <span class="time-val">17:27 / 00:13</span></div>
+                <div class="location">Colonia / Sanchinarro</div>
+            </div>
+        </div>
+
+        <div class="shift-card" id="card-016" data-category="tarde">
+            <div class="card-header">
+                <span class="turno-badge">Turno 016 X</span>
+                <span class="coche-info">Coche 005 / 004</span>
+            </div>
+            <div class="day-section laborable">
+                <div class="day-title"><span>Laborables</span> <span class="total-hours">06:50</span></div>
+                <div class="time-row"><span>Comienza:</span> <span class="time-val">17:03</span></div>
+                <div class="location">ALSACIA</div>
+                <div class="time-row"><span>Termina:</span> <span class="time-val">23:53</span></div>
+                <div class="location">C.O. Sanchinarro</div>
+            </div>
+            <div class="day-section sabado">
+                <div class="day-title"><span>Sábados</span> <span class="total-hours">07:23</span></div>
+                <div class="time-row"><span>Comienza:</span> <span class="time-val">14:40</span></div>
+                <div class="location">COLONIA FIN DE SEMANA</div>
+                <div class="time-row"><span>Termina:</span> <span class="time-val">22:03</span></div>
+                <div class="location">C.O. Sanchinarro</div>
+            </div>
+        </div>
+
+        <div class="shift-card" id="card-017" data-category="tarde">
+            <div class="card-header">
+                <span class="turno-badge">Turno 017</span>
+                <span class="coche-info">Coche 003 / 006</span>
+            </div>
+            <div class="day-section laborable">
+                <div class="day-title"><span>Laborables</span> <span class="total-hours">06:37</span></div>
+                <div class="time-row"><span>Comienza:</span> <span class="time-val">18:00</span></div>
+                <div class="location">ALSACIA</div>
+                <div class="time-row"><span>Termina:</span> <span class="time-val">00:37</span></div>
+                <div class="location">C.O. Sanchinarro</div>
+            </div>
+            <div class="day-section sabado">
+                <div class="day-title"><span>Sábados</span> <span class="total-hours">07:24</span></div>
+                <div class="time-row"><span>Comienza:</span> <span class="time-val">16:25</span></div>
+                <div class="location">C.O. Sanchinarro</div>
+                <div class="time-row"><span>Termina:</span> <span class="time-val">23:49</span></div>
+                <div class="location">C.O. Sanchinarro</div>
+            </div>
+        </div>
+
+        <div class="shift-card" id="card-018" data-category="manana correturnos">
+            <div class="card-header">
+                <span class="turno-badge">Turno 018</span>
+                <span class="coche-info">Correturnos M</span>
+            </div>
+            <div class="day-section laborable">
+                <div class="day-title"><span>Laborables</span> <span class="total-hours">-</span></div>
+                <div class="time-row"><span>Comienza:</span> <span class="time-val">Correturnos Mañana</span></div>
+                <div class="location">C.O. Sanchinarro</div>
+                <div class="time-row"><span>Termina:</span> <span class="time-val">-</span></div>
+                <div class="location">-</div>
+            </div>
+        </div>
+
+        <div class="shift-card" id="card-019" data-category="manana correturnos">
+            <div class="card-header">
+                <span class="turno-badge">Turno 019</span>
+                <span class="coche-info">Correturnos M</span>
+            </div>
+            <div class="day-section laborable">
+                <div class="day-title"><span>Laborables</span> <span class="total-hours">-</span></div>
+                <div class="time-row"><span>Comienza:</span> <span class="time-val">Correturnos Mañana</span></div>
+                <div class="location">C.O. Sanchinarro</div>
+                <div class="time-row"><span>Termina:</span> <span class="time-val">-</span></div>
+                <div class="location">-</div>
+            </div>
+        </div>
+
+        <div class="shift-card" id="card-020" data-category="tarde correturnos">
+            <div class="card-header">
+                <span class="turno-badge">Turno 020</span>
+                <span class="coche-info">Correturnos T</span>
+            </div>
+            <div class="day-section laborable">
+                <div class="day-title"><span>Laborables</span> <span class="total-hours">-</span></div>
+                <div class="time-row"><span>Comienza:</span> <span class="time-val">Correturnos Tarde</span></div>
+                <div class="location">C.O. Sanchinarro</div>
+                <div class="time-row"><span>Termina:</span> <span class="time-val">-</span></div>
+                <div class="location">-</div>
+            </div>
+        </div>
+
+        <div class="shift-card" id="card-021" data-category="tarde correturnos">
+            <div class="card-header">
+                <span class="turno-badge">Turno 021</span>
+                <span class="coche-info">Correturnos T</span>
+            </div>
+            <div class="day-section laborable">
+                <div class="day-title"><span>Laborables</span> <span class="total-hours">-</span></div>
+                <div class="time-row"><span>Comienza:</span> <span class="time-val">Correturnos Tarde</span></div>
+                <div class="location">C.O. Sanchinarro</div>
+                <div class="time-row"><span>Termina:</span> <span class="time-val">-</span></div>
+                <div class="location">-</div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const container = document.getElementById('kanbanBoard');
+        const STORAGE_KEY = 'emt_linea167_custom_order';
+
+        function showToast() {
+            const toast = document.getElementById('toast');
+            toast.style.display = 'inline-block';
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 2000);
+        }
+
+        function saveOrder() {
+            const currentOrder = Array.from(container.children).map(card => card.id);
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(currentOrder));
+            showToast();
+        }
+
+        function loadSavedOrder() {
+            const savedOrder = localStorage.getItem(STORAGE_KEY);
+            if (savedOrder) {
+                try {
+                    const orderArray = JSON.parse(savedOrder);
+                    orderArray.forEach(id => {
+                        const card = document.getElementById(id);
+                        if (card) {
+                            container.appendChild(card);
+                        }
+                    });
+                } catch (e) {
+                    console.error("Error cargando orden guardado:", e);
+                }
+            }
+        }
+
+        loadSavedOrder();
+
+        var sortable = Sortable.create(container, {
+            animation: 150,
+            ghostClass: 'blue-background-class',
+            onEnd: function () {
+                saveOrder();
+            }
+        });
+
+        function filterCards(category) {
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            document.querySelectorAll('.shift-card').forEach(card => {
+                const cardCat = card.getAttribute('data-category');
+                if (category === 'all' || cardCat.includes(category)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        function resetOrder() {
+            localStorage.removeItem(STORAGE_KEY);
+            location.reload();
+        }
+    </script>
+</body>
+</html>
